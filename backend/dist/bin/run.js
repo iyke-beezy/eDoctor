@@ -7,12 +7,12 @@ const http_1 = __importDefault(require("http"));
 const config_1 = __importDefault(require("../config"));
 const app_1 = __importDefault(require("./../src/app"));
 const config = config_1.default[process.env.NODE_ENV || 'development'];
-const service = (0, app_1.default)(config);
+const service = new app_1.default(config).getServer();
 const log = config.log();
 const server = http_1.default.createServer(service);
 server.listen(process.env.PORT || 5000);
 const { port } = server.address();
 server.on('listening', () => {
-    log.info(`Hi there, I am listing on port ${port} in ${service.get('env')} mode`);
+    log.info(`Hi there, I am listening on port ${port} in ${service.get('env')} mode`);
 });
 //# sourceMappingURL=run.js.map

@@ -3,8 +3,8 @@ import makeid from "../helpers/makeid";
 
 class Customer extends User {
     public custId: string;
-    constructor(username: string, firstName: string, lastName: string, email: string, mobile: string, password: string, address?: string) {
-        super(username, firstName, lastName, email, mobile, password, address);
+    constructor(dataSource: any) {
+        super(dataSource)
 
         this.custId = makeid(10);
     }

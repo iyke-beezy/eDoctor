@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "experimentalDecorators": true,
         "module": "commonjs",
         "rootDir": "./",
         "esModuleInterop": true,
@@ -10,13 +11,15 @@
         "resolveJsonModule": true,
         "removeComments": true,
         "noEmitOnError": true,
+        "typeRoots": ["./node_modules/@types", "./src/types"],
         "forceConsistentCasingInFileNames": true,
         "strict": false,
-        "skipLibCheck": true, /* Skip type checking all .d.ts files. */
+        "skipLibCheck": false, /* Skip type checking all .d.ts files. */
         "noUnusedLocals": false, /* Enable error reporting when local variables aren't read. */
         "noUnusedParameters": false, /* Raise an error when a function parameter isn't read. */
         // "exactOptionalPropertyTypes": true,               /* Interpret optional property types as written, rather than adding 'undefined'. */
         "noImplicitReturns": true, /* Enable error reporting for codepaths that do not explicitly return in a function. */
+        "emitDecoratorMetadata": true,
     },
     "lib": [
         "es2015"
