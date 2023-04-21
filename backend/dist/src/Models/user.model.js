@@ -17,10 +17,12 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 require("dotenv/config");
 const user_entity_1 = __importDefault(require("../entity/user.entity"));
 const errors_1 = require("../Error/errors");
+const makeid_1 = __importDefault(require("../helpers/makeid"));
 class User {
     constructor(dataSource) {
-        this.generateVerificationToken = (id, name) => {
-            return jsonwebtoken_1.default.sign({ id, name }, this.jwtPrivateSecret, {
+        this.userAccType = "CUST";
+        this.generateVerificationToken = (id) => {
+            return jsonwebtoken_1.default.sign({ id }, this.jwtPrivateSecret, {
                 expiresIn: "10d",
                 algorithm: "RS256",
             });
@@ -51,7 +53,7 @@ class User {
                 this.lastLogin = new Date();
                 user.lastLogin = this.lastLogin;
                 yield this.repository.save(user);
-                const token = this.generateVerificationToken(user.id, user.name);
+                const token = this.generateVerificationToken(user.id);
                 return {
                     user: { id: user.id, name: user.firstName + " " + user.lastName },
                     token
@@ -70,12 +72,18 @@ class User {
     getUser(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.repository.findOneBy({
+                const user = yield this.repository.findOneBy({
                     id
                 });
+                if (!user) {
+                    throw new errors_1.NotFoundError('User Not Found');
+                }
+                return user;
             }
             catch (err) {
-                throw err;
+                if (err instanceof errors_1.NotFoundError)
+                    throw err;
+                throw new errors_1.ServerError();
             }
         });
     }
@@ -87,10 +95,15 @@ class User {
                         [cliche]: value
                     }
                 });
+                if (!users) {
+                    throw new errors_1.NotFoundError('Users not Found for operation.');
+                }
                 return users;
             }
             catch (err) {
-                return err;
+                if (err instanceof errors_1.NotFoundError)
+                    throw err;
+                throw new errors_1.ServerError();
             }
         });
     }
@@ -111,6 +124,7 @@ class User {
     }
     register(username, firstName, lastName, email, mobile, dob, password, address) {
         return __awaiter(this, void 0, void 0, function* () {
+            this.id = `user${(0, makeid_1.default)(5)}`;
             this.userName = username;
             this.firstName = firstName;
             this.lastName = lastName;
@@ -121,28 +135,34 @@ class User {
             this.password = password;
             password = yield this.getPassword(password);
             this.signupDate = new Date();
-            const checkUserName = yield this.repository.findOneBy({
-                userName: username,
-            });
-            if (checkUserName) {
-                throw new errors_1.UserExistError('Username Already Exists! Please choose another username');
+            try {
+                const checkUserName = yield this.repository.findOneBy({
+                    userName: username,
+                });
+                if (checkUserName) {
+                    throw new errors_1.UserExistError('Username Already Exists! Please choose another username');
+                }
+                else {
+                    const user = new user_entity_1.default();
+                    user.id = this.id;
+                    user.firstName = this.firstName;
+                    user.lastName = this.lastName;
+                    user.userName = this.userName;
+                    user.email = this.email;
+                    user.password = password;
+                    user.mobile = this.mobile;
+                    user.address = this.address;
+                    user.dob = this.dob;
+                    user.signupDate = this.signupDate;
+                    user.userAccType = "CUST";
+                    yield this.repository.save(user);
+                    return user;
+                }
             }
-            else {
-                const user = new user_entity_1.default();
-                user.firstName = this.firstName;
-                user.lastName = this.lastName;
-                user.userName = this.userName;
-                user.email = this.email;
-                user.password = password;
-                user.mobile = this.mobile;
-                user.address = this.address;
-                user.dob = this.dob;
-                user.signupDate = this.signupDate;
-                yield this.repository.save(user);
-                return {
-                    status: '200',
-                    data: this.toJSON()
-                };
+            catch (err) {
+                if (err instanceof errors_1.UserExistError)
+                    throw err;
+                throw new errors_1.ServerError();
             }
         });
     }
@@ -153,6 +173,7 @@ class User {
     }
     toJSON() {
         return {
+            id: this.id,
             firstName: this.firstName,
             lastName: this.lastName,
             userName: this.userName,

@@ -4,7 +4,8 @@ declare global {
             hash: string;
             NODE_ENV: 'development' | 'production';
             PORT?: string;
-            JWT_PRIVATE_SECRET: string
+            JWT_PRIVATE_SECRET: string;
+            JWT_PUBLIC_SECRET: string;
         }
     }
 }

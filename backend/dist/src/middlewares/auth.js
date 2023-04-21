@@ -29,7 +29,12 @@ const auth = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () 
         next();
     }
     catch (err) {
-        res.status(err.statusCode).send(err.message);
+        if (err instanceof jsonwebtoken_1.default.JsonWebTokenError) {
+            res.status(401).send('Wrong token!');
+        }
+        else {
+            res.status(err.statusCode).send(err.message);
+        }
     }
 });
 exports.auth = auth;

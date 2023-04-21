@@ -4,8 +4,10 @@ import 'dotenv/config';
 
 import UserEntity from '../entity/user.entity';
 import { NotFoundError, AuthenticationError, UserExistError, ServerError } from '../Error/errors'
+import makeid from '../helpers/makeid';
 
 class User {
+    public id: string;
     public userName: string;
     public firstName: string;
     public lastName: string;
@@ -52,7 +54,7 @@ class User {
             await this.repository.save(user);
 
             // generate sha256 token for frontend
-            const token = this.generateVerificationToken(user.id, user.name);
+            const token = this.generateVerificationToken(user.id);
 
             return {
                 user: { id: user.id, name: user.firstName + " " + user.lastName },
@@ -117,6 +119,7 @@ class User {
     }
 
     async register(username: string, firstName: string, lastName: string, email: string, mobile: string, dob?: Date, password?: string, address?: string) {
+        this.id = `user${makeid(5)}`;
         this.userName = username;
         this.firstName = firstName;
         this.lastName = lastName
@@ -128,32 +131,37 @@ class User {
         password = await this.getPassword(password)
 
         this.signupDate = new Date();
-        const checkUserName = await this.repository.findOneBy({
-            userName: username,
-        })
-        // check if username exists
-        if (checkUserName) {
-            throw new UserExistError('Username Already Exists! Please choose another username');
-        }
-        else {
-            const user = new UserEntity();
-            user.firstName = this.firstName;
-            user.lastName = this.lastName;
-            user.userName = this.userName;
-            user.email = this.email;
-            user.password = password;
-            user.mobile = this.mobile;
-            user.address = this.address;
-            user.dob = this.dob;
-            user.signupDate = this.signupDate
-            user.userAccType = "CUST"
+        try {
+            const checkUserName = await this.repository.findOneBy({
+                userName: username,
+            })
+            // check if username exists
+            if (checkUserName) {
+                throw new UserExistError('Username Already Exists! Please choose another username');
+            }
+            else {
+                const user = new UserEntity();
+                user.id = this.id;
+                user.firstName = this.firstName;
+                user.lastName = this.lastName;
+                user.userName = this.userName;
+                user.email = this.email;
+                user.password = password;
+                user.mobile = this.mobile;
+                user.address = this.address;
+                user.dob = this.dob;
+                user.signupDate = this.signupDate
+                user.userAccType = "CUST"
 
-            await this.repository.save(user);
-            return {
-                status: '200',
-                data: this.toJSON()
-            };
+                await this.repository.save(user);
+                return user;
+            }
         }
+        catch (err) {
+            if (err instanceof UserExistError) throw err;
+            throw new ServerError();
+        }
+
     }
 
     async comparePassword(password: string) {
@@ -174,6 +182,7 @@ class User {
 */
     toJSON() {
         return {
+            id: this.id,
             firstName: this.firstName,
             lastName: this.lastName,
             userName: this.userName,
@@ -184,8 +193,8 @@ class User {
         }
     }
 
-    private generateVerificationToken = (id: number, name: string) => {
-        return jwt.sign({ id, name }, this.jwtPrivateSecret, {
+    private generateVerificationToken = (id: string) => {
+        return jwt.sign({ id }, this.jwtPrivateSecret, {
             expiresIn: "10d",
             algorithm: "RS256",
         });

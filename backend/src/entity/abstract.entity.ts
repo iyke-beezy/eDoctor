@@ -1,8 +1,8 @@
-import { Column, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, PrimaryColumn } from 'typeorm'
 
 
 abstract class Content {
-    @PrimaryGeneratedColumn()
+    @Column()
     id: string
 
     @Column("varchar", { length: 20 })
@@ -11,10 +11,10 @@ abstract class Content {
     @Column()
     lastName: string
 
-    @Column({ type: "varchar", length: 20 })
+    @PrimaryColumn({ type: "varchar", length: 20 })
     userName: string;
 
-    @Column()
+    @PrimaryColumn()
     email: string;
 
     @Column()

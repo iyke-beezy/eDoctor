@@ -13,7 +13,7 @@ const typeorm_1 = require("typeorm");
 class Content {
 }
 __decorate([
-    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    (0, typeorm_1.Column)(),
     __metadata("design:type", String)
 ], Content.prototype, "id", void 0);
 __decorate([
@@ -25,11 +25,11 @@ __decorate([
     __metadata("design:type", String)
 ], Content.prototype, "lastName", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 20 }),
+    (0, typeorm_1.PrimaryColumn)({ type: "varchar", length: 20 }),
     __metadata("design:type", String)
 ], Content.prototype, "userName", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.PrimaryColumn)(),
     __metadata("design:type", String)
 ], Content.prototype, "email", void 0);
 __decorate([
@@ -65,5 +65,9 @@ __decorate([
     }),
     __metadata("design:type", Date)
 ], Content.prototype, "signupDate", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Content.prototype, "userAccType", void 0);
 exports.default = Content;
 //# sourceMappingURL=abstract.entity.js.map

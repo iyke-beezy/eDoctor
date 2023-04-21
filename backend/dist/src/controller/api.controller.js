@@ -20,8 +20,8 @@ const apiController = (model) => {
             });
         }
         catch (err) {
-            res.status(501).json({
-                status: 'Error Occured',
+            res.status(err.statusCode).json({
+                status: err.status,
                 message: err.message
             });
         }
@@ -29,7 +29,7 @@ const apiController = (model) => {
     const getAllUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const users = yield model.getAllUsers();
-            res.status(201).json({
+            res.status(200).json({
                 status: 'Successful',
                 data: users
             });

@@ -16,12 +16,15 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
         if (!token) {
             throw new AuthenticationError();
         }
-
         const decoded = jwt.verify(token, SECRET_KEY);
         (req as CustomRequest).token = decoded;
 
         next();
     } catch (err) {
-        res.status(err.statusCode).send(err.message);
+        if (err instanceof jwt.JsonWebTokenError) {
+            res.status(401).send('Wrong token!')
+        } else {
+            res.status(err.statusCode).send(err.message);
+        }
     }
 };
