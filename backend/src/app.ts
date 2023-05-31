@@ -1,11 +1,12 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import User from './Models/user.model';
-// import pool from './dbconfig/db'
+import mongoose from 'mongoose'
 import { Request, Response, NextFunction } from 'express';
 import { myDataSource } from './dbconfig/data-source'
 import authRoute from './routes/auth.route';
 import apiRoute from './routes/api.route';
+import 'dotenv/config';
 
 class App {
     private server;
@@ -66,7 +67,18 @@ class App {
             })
             .catch((err) => {
                 this.log.error("Error during Data Source initialization:", err)
-            })
+            });
+
+        const options = {
+            maxPoolSize: 10
+        };
+
+        const { MONGODB_URI } = process.env
+
+        mongoose
+            .connect(MONGODB_URI, options)
+            .then(() => this.log.info('MongoDb is connected!'))
+            .catch((error) => this.log.error('MongoDb connection is unsuccessful.: ', error.message))
 
         this.dataSource = myDataSource;
 

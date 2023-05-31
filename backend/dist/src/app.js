@@ -5,9 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
+const mongoose_1 = __importDefault(require("mongoose"));
 const data_source_1 = require("./dbconfig/data-source");
 const auth_route_1 = __importDefault(require("./routes/auth.route"));
 const api_route_1 = __importDefault(require("./routes/api.route"));
+require("dotenv/config");
 class App {
     constructor(config) {
         this.config = config;
@@ -36,6 +38,14 @@ class App {
             .catch((err) => {
             this.log.error("Error during Data Source initialization:", err);
         });
+        const options = {
+            maxPoolSize: 10
+        };
+        const { MONGODB_URI } = process.env;
+        mongoose_1.default
+            .connect(MONGODB_URI, options)
+            .then(() => this.log.info('MongoDb is connected!'))
+            .catch((error) => this.log.error('MongoDb connection is unsuccessful.: ', error.message));
         this.dataSource = data_source_1.myDataSource;
     }
     routerConfig() {

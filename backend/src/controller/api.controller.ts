@@ -1,7 +1,9 @@
+import Customer from '../Models/customer.model';
+import Doctor from '../Models/doctor.model';
 import User from '../Models/user.model';
 import { Request, Response } from 'express'
 
-const apiController = (model: User) => {
+const apiController = (model: User | Customer | Doctor) => {
 
     const getUser = async (req: Request, res: Response) => {
         const { id } = req.params;
